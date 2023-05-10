@@ -4,11 +4,13 @@ import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.AdapterView
+import android.widget.TextView
 import android.widget.Toast
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.gson.Gson
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.mkt.myapplication.adapter.CategoryAdapter
 import com.mkt.myapplication.adapter.DrinksAdapter
 import com.mkt.myapplication.dto.Category
@@ -31,6 +33,7 @@ class MainActivity : AppCompatActivity() {
     var categoryListResponse: CocktailsCategoryDto? = null
     var categoryList: MutableList<Category>? = null
     var drinksList: MutableList<Drink> = ArrayList()
+    lateinit var tvCategoryLabel: TextView
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,6 +42,7 @@ class MainActivity : AppCompatActivity() {
         //init variables
         rvCategory = findViewById(R.id.rvCategory)
         rvDrinks = findViewById(R.id.rvDrinks)
+        tvCategoryLabel = findViewById(R.id.tvCategoryLabel)
         fetchCategories()
 
     }
@@ -76,9 +80,15 @@ class MainActivity : AppCompatActivity() {
                             false
                         )
                         rvCategory.adapter = categoryAdapter
+                        categoryAdapter.setOnClickListener(object : CategoryAdapter.OnItemClickListener{
+                            override fun onItemSelected(Category: Category?, position: Int) {
+                                TODO("Not yet implemented")
+                            }
+
+                        })
 
                         //fetchPopularCocktails from Api
-                        fetchPopularCocktails()
+                        fetchPopularCocktails("Cocktail")
                     } else {
                         Toast.makeText(
                             this@MainActivity,
@@ -103,12 +113,12 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    private fun fetchPopularCocktails() {
+    private fun fetchPopularCocktails(title: String) {
 
         //todo showProgress
         val apiInterface: ApiInterface =
             ApiClientString.getClient().create(ApiInterface::class.java)
-        val call: Call<String?>? = apiInterface.getDrinksPerCategoryList("Cocktail")
+        val call: Call<String?>? = apiInterface.getDrinksPerCategoryList(title)
         call?.enqueue(object : Callback<String?> {
             override fun onResponse(
                 call: Call<String?>,
@@ -139,7 +149,7 @@ class MainActivity : AppCompatActivity() {
                         //initialise the recyclerView and adapter
                         drinksAdapter = DrinksAdapter(drinksList, this@MainActivity)
                         //populate adapter
-                        rvDrinks.layoutManager = GridLayoutManager(this@MainActivity,1)
+                        rvDrinks.layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
                         rvDrinks.adapter = drinksAdapter
 
                     } else {
@@ -152,7 +162,7 @@ class MainActivity : AppCompatActivity() {
                 } catch (e: Exception) {
                     Log.d("onResponseException", e.message.toString())
                 }
-
+//menu.strDrinkThumb
             }
 
             override fun onFailure(call: Call<String?>, t: Throwable) {

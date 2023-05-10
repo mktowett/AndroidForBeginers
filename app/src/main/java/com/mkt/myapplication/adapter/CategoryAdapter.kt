@@ -43,7 +43,7 @@ class CategoryAdapter : RecyclerView.Adapter<CategoryAdapter.MyViewHolder> {
         var tvTitle: TextView = itemView.findViewById(R.id.tvCategoryTitle)
     }
 
-    interface OnItemClickListener {
+    interface OnItemClickListener : AdapterView.OnItemClickListener {
         fun onItemSelected(Category: Category?, position: Int)
     }
 }
